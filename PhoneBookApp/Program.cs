@@ -10,6 +10,9 @@ namespace PhoneBookApp
         {
             string menu = null;
             var phoneBook = new Dictionary<Contact, List<Call>>();
+            var lista = new List<Call>();
+            lista.Add(new Call());
+            phoneBook.Add(new Contact("ivan bakotin", "21412471"), lista);
 
             do
             {
@@ -21,6 +24,7 @@ namespace PhoneBookApp
                     "5 - Upravljanje kontaktima\n" +
                     "6 - Ispis svih poziva\n" +
                     "7 - Izlaz iz aplikacije\n");
+                menu = Console.ReadLine();
 
                 switch (menu)
                 {
@@ -30,7 +34,7 @@ namespace PhoneBookApp
                         break;
                     case "2":
                         Console.Clear();
-                        //addContact();
+                        addContact(phoneBook);
                         break;
                     case "3":
                         Console.Clear();
@@ -61,7 +65,7 @@ namespace PhoneBookApp
 
         static void confirmContinue()
         {
-            Console.WriteLine("Za povretak na glavni izbornik pritisnite bilo koju tipku!");
+            Console.WriteLine("Za povratak na glavni izbornik pritisnite bilo koju tipku!");
             Console.ReadKey();
             Console.Clear();
         }
@@ -71,11 +75,53 @@ namespace PhoneBookApp
             Console.WriteLine("Ispis kontakata:\n");
             foreach(var contact in phoneBook)
             {
-                Console.WriteLine($"Ime i prezime:{contact.Key._nameSurname}\n" +
-                    $"Broj mobitela:{contact.Key._phoneNumber}\n\n");
+                Console.WriteLine($"Ime i prezime: {contact.Key._nameSurname}\n" +
+                    $"Broj mobitela: {contact.Key._phoneNumber}\n\n");
             }
             confirmContinue();
             return;
+        }
+
+        static void addContact(Dictionary<Contact, List<Call>> phoneBook)
+        {
+            string menu = null;
+
+            do
+            {
+                Console.WriteLine("Upisite ime i prezime novog kontakta:\n");
+                var nameSurname = Console.ReadLine();
+                Console.WriteLine("Upisite broj mobitela novog kontakta:\n");
+                var phoneNum = Console.ReadLine();
+
+                foreach (var contact in phoneBook)
+                {
+                    if (contact.Key._phoneNumber == phoneNum)
+                    {
+                        Console.WriteLine("\nBroj vec postoji u imeniku!\n" +
+                            "1 - Pokusajte ponovno\n" +
+                            "0 - Nazad za glavni izbornik\n");
+                        menu = Console.ReadLine();
+                    }
+                }
+
+                switch (menu)
+                {
+                    case "1":
+                        Console.Clear();
+                        break;
+                    case "0":
+                        Console.Clear();
+                        return;
+                    default:
+                        Contact contact = new Contact(nameSurname, phoneNum);
+                        phoneBook.Add(contact, new List<Call>());
+                        Console.WriteLine("\nKontakt uspjesno dodan!\n");
+                        confirmContinue();
+                        menu = "0";
+                        break;
+                }
+
+            } while (menu is not "0");
         }
     }
 }

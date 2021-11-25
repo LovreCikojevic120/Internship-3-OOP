@@ -9,7 +9,7 @@ namespace PhoneBookApp.Entities
     class Contact
     {
         public string _nameSurname;
-        public long _phoneNumber;
+        public string _phoneNumber;
 
         public enum preference
         {
@@ -17,6 +17,12 @@ namespace PhoneBookApp.Entities
             Normal,
             Blocked
         };
+
+        public Contact(string nameSurname, string phoneNumber)
+        {
+            _nameSurname = nameSurname;
+            _phoneNumber = phoneNumber;
+        }
 
     }
 }
