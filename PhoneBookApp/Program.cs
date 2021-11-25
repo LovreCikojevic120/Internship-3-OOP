@@ -10,9 +10,7 @@ namespace PhoneBookApp
         {
             string menu = null;
             var phoneBook = new Dictionary<Contact, List<Call>>();
-            var lista = new List<Call>();
-            lista.Add(new Call());
-            phoneBook.Add(new Contact("ivan bakotin", "21412471"), lista);
+            phoneBook.Add(new Contact("ivan bakotin", "21412471"), new List<Call>());
 
             do
             {
@@ -30,47 +28,47 @@ namespace PhoneBookApp
                 {
                     case "1":
                         Console.Clear();
-                        printContacts(phoneBook);
+                        PrintContacts(phoneBook);
                         break;
                     case "2":
                         Console.Clear();
-                        addContact(phoneBook);
+                        AddContact(phoneBook);
                         break;
                     case "3":
                         Console.Clear();
-                        //deleteContact();
+                        //DeleteContact();
                         break;
                     case "4":
                         Console.Clear();
-                        //editContactPreference();
+                        //EditContactPreference();
                         break;
                     case "5":
                         Console.Clear();
-                        //manageContatcs();
+                        //ManageContatcs();
                         break;
                     case "6":
                         Console.Clear();
-                        //printCalls();
+                        //PrintCalls();
                         break;
                     case "7":
                         Console.Clear();
                         Console.WriteLine("Dovidenja!");
                         break;
                     default:
-                        //manageError();
+                        //ManageError();
                         break;
                 }
             } while (menu is not "7");
         }
 
-        static void confirmContinue()
+        static void ConfirmContinue()
         {
             Console.WriteLine("Za povratak na glavni izbornik pritisnite bilo koju tipku!");
             Console.ReadKey();
             Console.Clear();
         }
 
-        static void printContacts(Dictionary<Contact, List<Call>> phoneBook)
+        static void PrintContacts(Dictionary<Contact, List<Call>> phoneBook)
         {
             Console.WriteLine("Ispis kontakata:\n");
             foreach(var contact in phoneBook)
@@ -78,11 +76,11 @@ namespace PhoneBookApp
                 Console.WriteLine($"Ime i prezime: {contact.Key._nameSurname}\n" +
                     $"Broj mobitela: {contact.Key._phoneNumber}\n\n");
             }
-            confirmContinue();
+            ConfirmContinue();
             return;
         }
 
-        static void addContact(Dictionary<Contact, List<Call>> phoneBook)
+        static void AddContact(Dictionary<Contact, List<Call>> phoneBook)
         {
             string menu = null;
 
@@ -116,7 +114,7 @@ namespace PhoneBookApp
                         Contact contact = new Contact(nameSurname, phoneNum);
                         phoneBook.Add(contact, new List<Call>());
                         Console.WriteLine("\nKontakt uspjesno dodan!\n");
-                        confirmContinue();
+                        ConfirmContinue();
                         menu = "0";
                         break;
                 }
