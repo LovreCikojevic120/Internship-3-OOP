@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using PhoneBookApp.Entities;
 
 namespace PhoneBookApp
@@ -62,6 +63,11 @@ namespace PhoneBookApp
             } while (menu is not "7");
         }
 
+        static bool IsEmpty(Dictionary<Contact, List<Call>> phoneBook)
+        {
+            return phoneBook.Count is 0 ? true : false;
+        }
+
         static bool ValidPhoneNumber(string phoneNumber)
         {
             return long.TryParse(phoneNumber, out long result) && phoneNumber.Length is 10 ? true : false;
@@ -74,7 +80,7 @@ namespace PhoneBookApp
 
         static void ConfirmContinue(string message)
         {
-            Console.WriteLine($"\n{message}, za povratak na glavni izbornik pritisnite bilo koju tipku!");
+            Console.WriteLine($"\n{message}, za povratak na izbornik pritisnite bilo koju tipku!");
             Console.ReadKey();
             Console.Clear();
         }
@@ -95,6 +101,11 @@ namespace PhoneBookApp
 
         static void PrintContacts(Dictionary<Contact, List<Call>> phoneBook)
         {
+            if (IsEmpty(phoneBook))
+            {
+                ConfirmContinue("Kontakti prazni");
+                return;
+            }
             Console.WriteLine("Ispis kontakata:\n");
             foreach(var contact in phoneBook)
             {
@@ -161,6 +172,12 @@ namespace PhoneBookApp
 
         static void DeleteContact(Dictionary<Contact, List<Call>> phoneBook)
         {
+            if (IsEmpty(phoneBook))
+            {
+                ConfirmContinue("Kontakti prazni");
+                return;
+            }
+
             Console.WriteLine("Upisite broj mobitela kontakta kojeg zelite izbrisati:\n");
             var phoneNumber = Console.ReadLine();
             if (ValidPhoneNumber(phoneNumber))
@@ -183,6 +200,12 @@ namespace PhoneBookApp
 
         static void EditContactPreference(Dictionary<Contact, List<Call>> phoneBook)
         {
+            if (IsEmpty(phoneBook))
+            {
+                ConfirmContinue("Kontakti prazni");
+                return;
+            }
+
             Console.WriteLine("Upisite broj mobitela kontakta kojemu zelite promijeniti preferencu:\n");
             var phoneNumber = Console.ReadLine();
             if (!ValidPhoneNumber(phoneNumber)) return;
@@ -218,7 +241,13 @@ namespace PhoneBookApp
         static void ManageContacts(Dictionary<Contact, List<Call>> phoneBook)
         {
             string menu = null;
-            string phoneNumber = null;
+            Contact contact = null;
+
+            if (IsEmpty(phoneBook))
+            {
+                ConfirmContinue("Kontakti prazni");
+                return;
+            }
 
             do
             {
@@ -228,28 +257,20 @@ namespace PhoneBookApp
                     "3 - Povratak na glavni izbornik\n\n");
                 menu = Console.ReadLine();
 
-                Console.WriteLine("Upisi broj kontakta s kojim zelite upravljati:");
-                phoneNumber = Console.ReadLine();
-
-                var contact = FindKeyWithNumber(phoneBook, phoneNumber);
-
-                if (ValidPhoneNumber(phoneNumber))
-                {
-                    Console.WriteLine($"Ime i prezime: {contact.nameSurname}\n\n");
-                }
-                else
-                {
-                    ConfirmContinue("Broj nije validan");
-                }
+                
 
                 switch (menu)
                 {
                     case "1":
                         Console.Clear();
+                        contact = EnterUser(phoneBook);
+                        if (contact is null) break;
                         PrintCallsByContact(phoneBook, contact);
                         break;
                     case "2":
                         Console.Clear();
+                        contact = EnterUser(phoneBook);
+                        if (contact is null) break;
                         MakeCall(phoneBook, contact);
                         break;
                     case "3":
@@ -260,9 +281,54 @@ namespace PhoneBookApp
             } while (menu is not "3");
         }
 
+        static Contact EnterUser(Dictionary<Contact, List<Call>> phoneBook)
+        {
+            Console.WriteLine("Upisi broj kontakta s kojim zelite upravljati:");
+            var phoneNumber = Console.ReadLine();
+
+            var contact = FindKeyWithNumber(phoneBook, phoneNumber);
+
+            if (ValidPhoneNumber(phoneNumber))
+            {
+                Console.WriteLine($"Ime i prezime: {contact.nameSurname}\n\n");
+                return contact;
+            }
+            else
+            {
+                ConfirmContinue("Broj nije validan");
+                return null;
+            }
+        }
+
         static void MakeCall(Dictionary<Contact, List<Call>> phoneBook, Contact contact)
         {
+            var callList = phoneBook[contact];
 
+            if(contact.preference is Contact.Preference.Blocked)
+            {
+                ConfirmContinue("Kontakt blokiran");
+                return;
+            }
+
+            if (callList.Any(call => call.status is Call.CallStatus.InProgress))
+            {
+                ConfirmContinue("Drugi poziv u tijeku");
+            }
+            else
+            {
+                Random rndValue = new Random();
+                var callDuration = rndValue.Next(1, 20);
+
+                Console.WriteLine($"Poziv u tijeku, traje {callDuration}s");
+                Task.Delay(callDuration * 1000).Wait();
+
+                Call currentCall = new Call(callDuration);
+                callList.Add(currentCall);
+
+                ConfirmContinue("Poziv zavrsio");
+                currentCall.isInProgress = false;
+                currentCall.status = Call.CallStatus.Ended;
+            }
         }
 
         static void PrintCallsByContact(Dictionary<Contact, List<Call>> phoneBook, Contact contact)
@@ -277,6 +343,12 @@ namespace PhoneBookApp
         
         static void PrintCalls(Dictionary<Contact, List<Call>> phoneBook)
         {
+            if (IsEmpty(phoneBook))
+            {
+                ConfirmContinue("Kontakti prazni");
+                return;
+            }
+
             foreach (var contact in phoneBook)
             {
 
