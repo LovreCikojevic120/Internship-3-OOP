@@ -10,7 +10,7 @@ namespace PhoneBookApp
         {
             string menu = null;
             var phoneBook = new Dictionary<Contact, List<Call>>();
-            phoneBook.Add(new Contact("ivan bakotin", "21412471"), new List<Call>());
+            phoneBook.Add(new Contact("ivan bakotin", "12345"), new List<Call>());
 
             do
             {
@@ -36,19 +36,19 @@ namespace PhoneBookApp
                         break;
                     case "3":
                         Console.Clear();
-                        //DeleteContact();
+                        DeleteContact(phoneBook);
                         break;
                     case "4":
                         Console.Clear();
-                        //EditContactPreference();
+                        EditContactPreference(phoneBook);
                         break;
                     case "5":
                         Console.Clear();
-                        //ManageContatcs();
+                        ManageContacts(phoneBook);
                         break;
                     case "6":
                         Console.Clear();
-                        //PrintCalls();
+                        PrintCalls(phoneBook);
                         break;
                     case "7":
                         Console.Clear();
@@ -120,6 +120,39 @@ namespace PhoneBookApp
                 }
 
             } while (menu is not "0");
+        }
+
+        static void DeleteContact(Dictionary<Contact, List<Call>> phoneBook)
+        {
+            Console.WriteLine("Upisite broj mobitela kontakta kojeg zelite izbrisati:\n");
+            var phoneNumber = Console.ReadLine();
+            foreach(var contact in phoneBook)
+            {
+                if (contact.Key._phoneNumber == phoneNumber)
+                {
+                    phoneBook.Remove(contact.Key);
+                    Console.WriteLine("Kontakt izbrisan!\n");
+                    ConfirmContinue();
+                    return;
+                }
+            }
+            Console.WriteLine("Kontakt ne postoji!\n");
+            ConfirmContinue();
+        }
+
+        static void EditContactPreference(Dictionary<Contact, List<Call>> phoneBook)
+        {
+
+        }
+
+        static void ManageContacts(Dictionary<Contact, List<Call>> phoneBook)
+        {
+
+        }
+
+        static void PrintCalls(Dictionary<Contact, List<Call>> phoneBook)
+        {
+
         }
     }
 }
