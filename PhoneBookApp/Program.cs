@@ -217,9 +217,64 @@ namespace PhoneBookApp
 
         static void ManageContacts(Dictionary<Contact, List<Call>> phoneBook)
         {
+            string menu = null;
+            string phoneNumber = null;
+
+            do
+            {
+                Console.WriteLine("===Upravljanje kontaktima===\n" +
+                    "1 - Ispis poziva\n" +
+                    "2 - Uspostava poziva\n" +
+                    "3 - Povratak na glavni izbornik\n\n");
+                menu = Console.ReadLine();
+
+                Console.WriteLine("Upisi broj kontakta s kojim zelite upravljati:");
+                phoneNumber = Console.ReadLine();
+
+                var contact = FindKeyWithNumber(phoneBook, phoneNumber);
+
+                if (ValidPhoneNumber(phoneNumber))
+                {
+                    Console.WriteLine($"Ime i prezime: {contact.nameSurname}\n\n");
+                }
+                else
+                {
+                    ConfirmContinue("Broj nije validan");
+                }
+
+                switch (menu)
+                {
+                    case "1":
+                        Console.Clear();
+                        PrintCallsByContact(phoneBook, contact);
+                        break;
+                    case "2":
+                        Console.Clear();
+                        MakeCall(phoneBook, contact);
+                        break;
+                    case "3":
+                        Console.Clear();
+                        return;
+                }
+
+            } while (menu is not "3");
+        }
+
+        static void MakeCall(Dictionary<Contact, List<Call>> phoneBook, Contact contact)
+        {
 
         }
 
+        static void PrintCallsByContact(Dictionary<Contact, List<Call>> phoneBook, Contact contact)
+        {
+            foreach (var call in phoneBook[contact])
+            {
+                Console.WriteLine($"Vrijeme poziva: {call.timeOfCall}\n" +
+                    $"Status poziva: {call.status}\n");
+            }
+            ConfirmContinue("Pozivi ispisani");
+        }
+        
         static void PrintCalls(Dictionary<Contact, List<Call>> phoneBook)
         {
             foreach (var contact in phoneBook)
