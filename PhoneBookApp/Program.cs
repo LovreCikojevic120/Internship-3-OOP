@@ -57,10 +57,17 @@ namespace PhoneBookApp
                         Console.WriteLine("Dovidenja!");
                         break;
                     default:
-                        //ManageError();
+                        ManageError();
                         break;
                 }
             } while (menu is not "7");
+        }
+
+        static void ManageError()
+        {
+            Console.WriteLine("Opcija za izbornik krivo unesena, pritisnite bilo koju tipku da pokusate ponovno!\n");
+            Console.ReadKey();
+            Console.Clear();
         }
 
         static bool IsEmpty(Dictionary<Contact, List<Call>> phoneBook)
@@ -257,8 +264,6 @@ namespace PhoneBookApp
                     "3 - Povratak na glavni izbornik\n\n");
                 menu = Console.ReadLine();
 
-                
-
                 switch (menu)
                 {
                     case "1":
@@ -276,6 +281,9 @@ namespace PhoneBookApp
                     case "3":
                         Console.Clear();
                         return;
+                    default:
+                        ManageError();
+                        break;
                 }
 
             } while (menu is not "3");
@@ -333,6 +341,12 @@ namespace PhoneBookApp
 
         static void PrintCallsByContact(Dictionary<Contact, List<Call>> phoneBook, Contact contact)
         {
+            if(phoneBook[contact].Count is 0)
+            {
+                ConfirmContinue("Kontakti prazni");
+                return;
+            }
+
             foreach (var call in phoneBook[contact])
             {
                 Console.WriteLine($"Vrijeme poziva: {call.timeOfCall}\n" +
@@ -343,7 +357,7 @@ namespace PhoneBookApp
         
         static void PrintCalls(Dictionary<Contact, List<Call>> phoneBook)
         {
-            if (IsEmpty(phoneBook))
+            if (IsEmpty(phoneBook) || phoneBook.Values.Count is 0)
             {
                 ConfirmContinue("Kontakti prazni");
                 return;
