@@ -16,11 +16,19 @@ namespace PhoneBookApp.Entities
         public DateTime timeOfCall { get => _timeOfCall; set => _timeOfCall = value; }
         public CallStatus status { get => _status; set => _status = value; }
         public bool isInProgress { get => _isInProgress; set => _isInProgress = value; }
+        public int callDuration { get => _callDuration; set => _callDuration = value; }
 
-        public Call(int callDuration)
+        public Call()
         {
             _timeOfCall = DateTime.Now;
-            _callDuration = callDuration;
+            SetStatus();
+        }
+
+        private void SetStatus()
+        {
+            Random rnd = new Random(DateTime.Now.Millisecond);
+            var status = rnd.Next(2);
+            _status = (CallStatus)status;
         }
         public enum CallStatus
         {

@@ -102,7 +102,7 @@ namespace PhoneBookApp
                 }
             }
 
-            Console.WriteLine("\nKontakt ne postoji!\n");
+            ConfirmContinue("Kontakt ne postoji");
             return null;
         }
 
@@ -187,7 +187,7 @@ namespace PhoneBookApp
 
             Console.WriteLine("Upisite broj mobitela kontakta kojeg zelite izbrisati:\n");
             var phoneNumber = Console.ReadLine();
-            if (ValidPhoneNumber(phoneNumber))
+            if (!ValidPhoneNumber(phoneNumber))
             {
                 ConfirmContinue("Broj mobitela krivo upisan");
                 return;
@@ -224,29 +224,25 @@ namespace PhoneBookApp
             var key = FindKeyWithNumber(phoneBook, phoneNumber);
 
             if (key is null) return;
-            else
-            {
-                Console.WriteLine("Unesite novu preferencu:\n" +
-                    "1 - Normal\n2 - Favorit\n3 - Blokiran\n");
-                var pref = Console.ReadLine();
-
-                if(int.TryParse(pref, out int result) && int.Parse(pref) > 0 && int.Parse(pref) < 4)
-                {
-                    var oldContact = key;
-                    var listOfCalls = phoneBook[oldContact];
-                    phoneBook.Remove(oldContact);
-
-                    var newContact = new Contact(key.nameSurname, phoneNumber, result);
-                    phoneBook.Add(newContact, listOfCalls);
-                    ConfirmContinue("Preferenca kontakta uspjesno promijenjena");
-                }
-                else
-                {
-                    ConfirmContinue("Krivi unos izbornika");
-                    return;
-                }
-            }
             
+            Console.WriteLine("\nUnesite novu preferencu:\n" +
+                "1 - Normal\n2 - Favorit\n3 - Blokiran\n");
+            var pref = Console.ReadLine();
+
+            if(int.TryParse(pref, out int result) && int.Parse(pref) > 0 && int.Parse(pref) < 4)
+            {
+                var oldContact = key;
+                var listOfCalls = phoneBook[oldContact];
+                phoneBook.Remove(oldContact);
+
+                var newContact = new Contact(key.nameSurname, phoneNumber, result);
+                phoneBook.Add(newContact, listOfCalls);
+                ConfirmContinue("Preferenca kontakta uspjesno promijenjena");
+                return;
+            }
+
+            ConfirmContinue("Krivi unos izbornika");
+            return;
         }
 
         static void ManageContacts(Dictionary<Contact, List<Call>> phoneBook)
@@ -295,21 +291,19 @@ namespace PhoneBookApp
 
         static Contact EnterUser(Dictionary<Contact, List<Call>> phoneBook)
         {
-            Console.WriteLine("Upisi broj kontakta s kojim zelite upravljati:");
+            Console.WriteLine("Upisite broj kontakta s kojem zelite pristupiti:");
             var phoneNumber = Console.ReadLine();
 
             var contact = FindKeyWithNumber(phoneBook, phoneNumber);
 
-            if (ValidPhoneNumber(phoneNumber))
+            if (ValidPhoneNumber(phoneNumber) && phoneBook.ContainsKey(contact))
             {
                 Console.WriteLine($"Ime i prezime: {contact.nameSurname}\n\n");
                 return contact;
             }
-            else
-            {
-                ConfirmContinue("Broj nije validan");
-                return null;
-            }
+
+            ConfirmContinue("Broj nije validan");
+            return null;
         }
 
         static void MakeCall(Dictionary<Contact, List<Call>> phoneBook, Contact contact)
@@ -325,45 +319,57 @@ namespace PhoneBookApp
             if (callList.Any(call => call.status is Call.CallStatus.InProgress))
             {
                 ConfirmContinue("Drugi poziv u tijeku");
+                return;
             }
-            else
+
+            Call currentCall = new Call();
+            if (currentCall.status is Call.CallStatus.InProgress)
             {
-                Random rndValue = new Random();
+                Random rndValue = new Random(DateTime.Now.Millisecond);
                 var callDuration = rndValue.Next(1, 20);
+                currentCall.callDuration = callDuration;
 
                 Console.WriteLine($"Poziv u tijeku, traje {callDuration}s");
                 Task.Delay(callDuration * 1000).Wait();
 
-                Call currentCall = new Call(callDuration);
-                callList.Add(currentCall);
-
                 ConfirmContinue("Poziv zavrsio");
                 currentCall.isInProgress = false;
                 currentCall.status = Call.CallStatus.Ended;
+
+                callList.Add(currentCall);
+                return;
             }
+
+            currentCall.status = Call.CallStatus.Missed;
+
+            callList.Add(currentCall);
+            ConfirmContinue("Poziv je propusten");
+            return;
         }
 
         static void PrintCallsByContact(Dictionary<Contact, List<Call>> phoneBook, Contact contact)
         {
             if(phoneBook[contact].Count is 0)
             {
-                ConfirmContinue("Kontakti prazni");
+                ConfirmContinue("Nema poziva");
                 return;
             }
 
             foreach (var call in phoneBook[contact])
             {
                 Console.WriteLine($"Vrijeme poziva: {call.timeOfCall}\n" +
-                    $"Status poziva: {call.status}\n");
+                    $"Status poziva: {call.status}\n" +
+                    $"Trajanje poziva: {call.callDuration}s\n");
             }
+
             ConfirmContinue("Pozivi ispisani");
         }
         
         static void PrintCalls(Dictionary<Contact, List<Call>> phoneBook)
         {
-            if (IsEmpty(phoneBook) || phoneBook.Values.Count is 0)
+            if (IsEmpty(phoneBook))
             {
-                ConfirmContinue("Kontakti prazni");
+                ConfirmContinue("Imenik prazan");
                 return;
             }
 
@@ -371,13 +377,19 @@ namespace PhoneBookApp
             {
 
                 Console.WriteLine($"\nKontakt: {contact.Key.nameSurname}, Broj mobitela: {contact.Key.phoneNumber}");
+                if (contact.Value.Count is 0) Console.WriteLine("Kontakt nema poziva\n");
 
-                foreach (var call in contact.Value)
+                else
                 {
-                    Console.WriteLine($"Vrijeme poziva: {call.timeOfCall}\n" +
-                        $"Status poziva: {call.status}\n");
+                    foreach (var call in contact.Value)
+                    {
+                        Console.WriteLine($"Vrijeme poziva: {call.timeOfCall}\n" +
+                            $"Status poziva: {call.status}\n" +
+                            $"Trajanje poziva: {call.callDuration}s");
+                    }
                 }
             }
+
             ConfirmContinue("Pozivi ispisani");
         }
     }
