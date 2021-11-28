@@ -82,7 +82,7 @@ namespace PhoneBookApp
 
         static bool ValidNameSurname(string nameSurname)
         {
-            return nameSurname.Any(char.IsDigit) ? false : true;
+            return (!nameSurname.Any(char.IsDigit) && nameSurname.Length is not 0) ? true : false;
         }
 
         static void ConfirmContinue(string message)
@@ -202,7 +202,7 @@ namespace PhoneBookApp
                     return;
                 }
             }
-            ConfirmContinue("Kontakt ne postoji!");
+            ConfirmContinue("Kontakt ne postoji");
         }
 
         static void EditContactPreference(Dictionary<Contact, List<Call>> phoneBook)
@@ -215,7 +215,11 @@ namespace PhoneBookApp
 
             Console.WriteLine("Upisite broj mobitela kontakta kojemu zelite promijeniti preferencu:\n");
             var phoneNumber = Console.ReadLine();
-            if (!ValidPhoneNumber(phoneNumber)) return;
+            if (!ValidPhoneNumber(phoneNumber))
+            {
+                ConfirmContinue("Broj mobitela krivo upisan");
+                return;
+            }
 
             var key = FindKeyWithNumber(phoneBook, phoneNumber);
 
